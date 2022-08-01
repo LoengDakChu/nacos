@@ -36,20 +36,27 @@ public class DynamicDataSource {
     public static DynamicDataSource getInstance() {
         return INSTANCE;
     }
-    
+
+    /**
+     * 加锁获取数据源，只能初始化一次数据源
+     * @return
+     */
     public synchronized DataSourceService getDataSource() {
         try {
             
             // Embedded storage is used by default in stand-alone mode
             // In cluster mode, external databases are used by default
-            
+
+            // 如果为嵌入式存储则创建Derby数据源
             if (PropertyUtil.isEmbeddedStorage()) {
                 if (localDataSourceService == null) {
                     localDataSourceService = new LocalDataSourceServiceImpl();
                     localDataSourceService.init();
                 }
                 return localDataSourceService;
-            } else {
+            }
+            // 如果是外部存储则创建Mysql数据源
+            else {
                 if (basicDataSourceService == null) {
                     basicDataSourceService = new ExternalDataSourceServiceImpl();
                     basicDataSourceService.init();

@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
+ * 属性工具类，spring启动的时候初始化回调
  * Properties util.
  *
  * @author Nacos
@@ -99,6 +100,9 @@ public class PropertyUtil implements ApplicationContextInitializer<ConfigurableA
     
     /**
      * Inline storage value = ${nacos.standalone}.
+     *
+     * 是否使用内嵌存储，Derby
+     * 单机启动默认是true，集群是false（内嵌数据库存在数据一致性问题，所以集群下只能用mysql）
      */
     private static boolean embeddedStorage = EnvUtil.getStandaloneMode();
     
@@ -249,7 +253,10 @@ public class PropertyUtil implements ApplicationContextInitializer<ConfigurableA
     public static void setEmbeddedStorage(boolean embeddedStorage) {
         PropertyUtil.embeddedStorage = embeddedStorage;
     }
-    
+
+    /**
+     *  加载配置
+     */
     private void loadSetting() {
         try {
             setNotifyConnectTimeout(Integer.parseInt(EnvUtil.getProperty(PropertiesConstant.NOTIFY_CONNECT_TIMEOUT,
@@ -280,6 +287,7 @@ public class PropertyUtil implements ApplicationContextInitializer<ConfigurableA
             setCorrectUsageDelay(getInt(PropertiesConstant.CORRECT_USAGE_DELAY, correctUsageDelay));
             setInitialExpansionPercent(getInt(PropertiesConstant.INITIAL_EXPANSION_PERCENT, initialExpansionPercent));
             // External data sources are used by default in cluster mode
+            // 集群模式下默认使用外部数据源（mysql），读取application.properties中的spring.datasource.platform
             setUseExternalDB(PropertiesConstant.MYSQL
                     .equalsIgnoreCase(getString(PropertiesConstant.SPRING_DATASOURCE_PLATFORM, "")));
             
@@ -287,7 +295,8 @@ public class PropertyUtil implements ApplicationContextInitializer<ConfigurableA
             // This value is true in stand-alone mode and false in cluster mode
             // If this value is set to true in cluster mode, nacos's distributed storage engine is turned on
             // default value is depend on ${nacos.standalone}
-            
+
+            // 是否使用外部数据源
             if (isUseExternalDB()) {
                 setEmbeddedStorage(false);
             } else {
@@ -331,7 +340,11 @@ public class PropertyUtil implements ApplicationContextInitializer<ConfigurableA
     public String getProperty(String key, String defaultValue) {
         return EnvUtil.getProperty(key, defaultValue);
     }
-    
+
+    /**
+     * 初始化方法
+     * @param configurableApplicationContext the application to configure
+     */
     @Override
     public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
         loadSetting();

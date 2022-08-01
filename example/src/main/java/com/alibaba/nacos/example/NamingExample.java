@@ -77,7 +77,7 @@ public class NamingExample {
             }
         });
     
-        naming.deregisterInstance("nacos.test.3", "11.11.11.11", 8888, "TEST1");
+//        naming.deregisterInstance("nacos.test.3", "11.11.11.11", 8888, "TEST1");
         
         Thread.sleep(1000);
     

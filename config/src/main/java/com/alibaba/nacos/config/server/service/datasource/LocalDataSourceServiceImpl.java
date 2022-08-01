@@ -82,6 +82,7 @@ public class LocalDataSourceServiceImpl implements DataSourceService {
             final String jdbcUrl =
                     "jdbc:derby:" + Paths.get(EnvUtil.getNacosHome(), derbyBaseDir).toString()
                             + ";create=true";
+            // 初始化连接
             initialize(jdbcUrl);
             initialize = true;
         }
@@ -94,6 +95,7 @@ public class LocalDataSourceServiceImpl implements DataSourceService {
             throw new RuntimeException("datasource is null");
         }
         try {
+            // 执行DDL
             execute(ds.getConnection(), "META-INF/schema.sql");
         } catch (Exception e) {
             if (LogUtil.DEFAULT_LOG.isErrorEnabled()) {
